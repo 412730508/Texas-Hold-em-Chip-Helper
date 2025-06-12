@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>德州撲克籌碼輔助工具</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Orbitron|Playfair+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>德州撲克籌碼輔助工具</h1>
+        <p style="text-align:center;color:#ffd700;font-size:1.1em;margin-bottom:16px;">
+            賭博需謹慎，小賭怡情，大賭郭台銘
+        </p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div></div>
+            <div>
+                <span title="Language" style="font-size:1.2em;vertical-align:middle;margin-right:4px;">🌐</span>
+                <select id="lang-select" style="padding:4px 10px;font-size:0.95em;">
+                    <option value="zh-tw">繁體中文</option>
+                    <option value="en">English</option>
+                </select>
+                <button id="toggle-mobile-btn" style="padding:4px 14px;font-size:0.95em;">切換手機模板</button>
+            </div>
+        </div>
+        <div id="setup-section">
+            <label>玩家人數（2-10）：<input type="number" id="player-count" min="2" max="10" value="4"></label>
+            <label style="margin-left:16px;">每回合最低下注：<input type="number" id="min-bet" min="1" value="10" style="width:60px;"></label>
+            <button id="setup-btn">建立玩家</button>
+            <div id="player-names"></div>
+        </div>
+        <div id="game-section" style="display:none;">
+            <div id="blind-area" style="margin-bottom:12px;">
+                <label>小盲：<select id="small-blind-select"></select></label>
+                <label style="margin-left:12px;">大盲：<select id="big-blind-select"></select></label>
+                <button id="next-blind-btn" style="margin-left:12px;">下位盲注</button>
+            </div>
+            <div id="players-area"></div>
+            <div id="pot-area">底池：<span id="pot">0</span></div>
+            <div id="betting-area"></div>
+            <div id="winner-area">
+                <label>勝者：</label>
+                <select id="winner-select"></select>
+                <button id="distribute-btn">分配底池</button>
+            </div>
+            <div id="controls">
+                <button id="next-round-btn">新局</button>
+                <button id="reset-btn">重置全部</button>
+            </div>
+            <div id="history-area">
+                <h3>籌碼歷史紀錄</h3>
+                <ul id="history-list"></ul>
+            </div>
+            <div id="relief-area" style="margin-top:18px; text-align:center;">
+                <label>救濟金發放給
+                    <select id="relief-player-select"></select>
+                </label>
+                <input type="number" id="relief-amount" min="1" value="100" style="width:80px;">
+                <button id="relief-btn">發放救濟金</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

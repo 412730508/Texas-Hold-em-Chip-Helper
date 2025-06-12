@@ -1,0 +1,271 @@
+body {
+    background: #184d3a;
+    color: #fff;
+    font-family: 'Orbitron', 'Playfair Display', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: rgba(0,0,0,0.7);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px #000a;
+    padding: 24px 32px;
+}
+h1 {
+    text-align: center;
+    font-family: 'Orbitron', 'Playfair Display', 'Arial Black', cursive, sans-serif;
+    font-weight: bold;
+    font-size: 2.5em;
+    letter-spacing: 4px;
+    background: linear-gradient(90deg, #ff4fd8 0%, #00ffe7 50%, #aaff00 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    text-shadow:
+        0 0 8px #ff4fd8,
+        0 0 16px #00ffe7,
+        0 0 24px #aaff00,
+        0 0 40px #ff4fd8,
+        0 0 60px #00ffe7;
+    animation: neon-flicker 2.2s infinite alternate;
+    margin-bottom: 0.2em;
+}
+
+@keyframes neon-flicker {
+    0%, 100% {
+        opacity: 1;
+        text-shadow:
+            0 0 8px #ff4fd8,
+            0 0 16px #00ffe7,
+            0 0 24px #aaff00,
+            0 0 40px #ff4fd8,
+            0 0 60px #00ffe7;
+    }
+    10% {
+        opacity: 0.85;
+        text-shadow:
+            0 0 4px #ff4fd8,
+            0 0 8px #00ffe7,
+            0 0 12px #aaff00,
+            0 0 20px #ff4fd8,
+            0 0 30px #00ffe7;
+    }
+    20% {
+        opacity: 0.7;
+        text-shadow:
+            0 0 2px #ff4fd8,
+            0 0 4px #00ffe7,
+            0 0 6px #aaff00,
+            0 0 10px #ff4fd8,
+            0 0 15px #00ffe7;
+    }
+    22% {
+        opacity: 0.3;
+        text-shadow: none;
+    }
+    24% {
+        opacity: 0.7;
+        text-shadow:
+            0 0 2px #ff4fd8,
+            0 0 4px #00ffe7,
+            0 0 6px #aaff00,
+            0 0 10px #ff4fd8,
+            0 0 15px #00ffe7;
+    }
+    30% {
+        opacity: 1;
+        text-shadow:
+            0 0 8px #ff4fd8,
+            0 0 16px #00ffe7,
+            0 0 24px #aaff00,
+            0 0 40px #ff4fd8,
+            0 0 60px #00ffe7;
+    }
+    70% {
+        opacity: 0.95;
+        text-shadow:
+            0 0 12px #ff4fd8,
+            0 0 24px #00ffe7,
+            0 0 36px #aaff00,
+            0 0 60px #ff4fd8,
+            0 0 90px #00ffe7;
+    }
+    80% {
+        opacity: 0.7;
+        text-shadow:
+            0 0 2px #ff4fd8,
+            0 0 4px #00ffe7,
+            0 0 6px #aaff00,
+            0 0 10px #ff4fd8,
+            0 0 15px #00ffe7;
+    }
+    82% {
+        opacity: 0.3;
+        text-shadow: none;
+    }
+    84% {
+        opacity: 0.7;
+        text-shadow:
+            0 0 2px #ff4fd8,
+            0 0 4px #00ffe7,
+            0 0 6px #aaff00,
+            0 0 10px #ff4fd8,
+            0 0 15px #00ffe7;
+    }
+    90% {
+        opacity: 1;
+        text-shadow:
+            0 0 8px #ff4fd8,
+            0 0 16px #00ffe7,
+            0 0 24px #aaff00,
+            0 0 40px #ff4fd8,
+            0 0 60px #00ffe7;
+    }
+}
+#setup-section, #game-section {
+    margin-top: 24px;
+}
+#player-names input {
+    margin: 4px 8px 4px 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+}
+#players-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.player-block {
+    background: #23694d;
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 120px;
+    text-align: center;
+    box-shadow: 0 2px 8px #0005;
+    position: relative;
+}
+.player-block .chip {
+    font-size: 1.2em;
+    margin-right: 4px;
+}
+#pot-area {
+    background: #2e8b57;
+    border-radius: 8px;
+    padding: 10px 20px;
+    margin-bottom: 12px;
+    font-size: 1.2em;
+    text-align: center;
+    color: gold;
+    box-shadow: 0 2px 8px #0005;
+}
+#betting-area {
+    margin-bottom: 12px;
+}
+#betting-area input[type="number"] {
+    width: 60px;
+    margin: 0 6px;
+    border-radius: 6px;
+    border: none;
+    padding: 4px;
+}
+button {
+    background: linear-gradient(145deg, #e63946 60%, #457b9d 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 8px 20px;
+    font-size: 1em;
+    margin: 6px 8px 6px 0;
+    box-shadow: 0 2px 8px #0005;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover {
+    background: linear-gradient(145deg, #f1c40f 60%, #457b9d 100%);
+    color: #222;
+}
+#winner-area {
+    margin-bottom: 12px;
+}
+#winner-select {
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: none;
+    margin-right: 8px;
+}
+#history-area {
+    background: #1a2d23;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-top: 18px;
+    color: #eee;
+    font-size: 0.95em;
+    max-height: 160px;
+    overflow-y: auto;
+}
+ul#history-list {
+    padding-left: 18px;
+}
+.player-block .winner {
+    border: 2px solid gold;
+    box-shadow: 0 0 12px gold;
+    animation: winner-flash 0.8s linear 2;
+}
+@keyframes winner-flash {
+    0%, 100% { border-color: gold; }
+    50% { border-color: #fff700; }
+}
+body.mobile-template .container {
+    max-width: 100vw;
+    padding: 8px 2vw;
+    font-size: 1.08em;
+}
+body.mobile-template h1 {
+    font-size: 1.3em;
+}
+body.mobile-template #players-area,
+body.mobile-template #betting-area,
+body.mobile-template #history-area,
+body.mobile-template #relief-area {
+    flex-direction: column !important;
+    gap: 8px !important;
+    font-size: 1em;
+}
+body.mobile-template .player-block {
+    min-width: unset;
+    font-size: 1em;
+    padding: 8px 6px;
+}
+body.mobile-template label,
+body.mobile-template input,
+body.mobile-template select,
+body.mobile-template button {
+    font-size: 1em !important;
+}
+body.mobile-template #betting-area label {
+    display: block;
+    margin-bottom: 6px;
+}
+body.mobile-template #blind-area {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+body.mobile-template #controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+}
+@media (max-width: 600px) {
+    .container {
+        max-width: 100vw;
+        padding: 4px 1vw;
+    }
+}
