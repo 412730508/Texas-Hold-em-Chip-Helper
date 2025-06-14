@@ -275,6 +275,7 @@ body.mobile-template #controls {
 #taunt-img img {
     width: 180px;
     box-shadow: 0 0 24px #000a;
+    border-radius: 16px;
     background: #222;
 }
 #taunt-img .taunt-text {
