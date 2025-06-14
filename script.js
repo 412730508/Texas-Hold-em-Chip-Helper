@@ -19,6 +19,11 @@ const reliefAmountInput = document.getElementById('relief-amount');
 const reliefBtn = document.getElementById('relief-btn');
 const toggleMobileBtn = document.getElementById('toggle-mobile-btn');
 const langSelect = document.getElementById('lang-select');
+const themeSelect = document.getElementById('theme-select');
+const exportCsvBtn = document.getElementById('export-csv-btn');
+const exportJsonBtn = document.getElementById('export-json-btn');
+const importJsonBtn = document.getElementById('import-json-btn');
+const importJsonInput = document.getElementById('import-json-input');
 
 let players = [];
 let pot = 0;
@@ -150,9 +155,27 @@ setupBtn.onclick = () => {
         chipInput.className = 'player-chip-input';
         chipInput.style.width = '80px';
         chipInput.placeholder = '籌碼數';
+        // 新增顏色選擇
+        const colorInput = document.createElement('input');
+        colorInput.type = 'color';
+        colorInput.value = ['#ff4fd8','#00ffe7','#aaff00','#ffd700','#e63946','#457b9d','#23694d','#f1c40f','#2e8b57','#1a2d23'][i%10];
+        colorInput.className = 'player-color-input';
+        colorInput.style.marginLeft = '8px';
+        // 新增圖示選擇
+        const iconInput = document.createElement('select');
+        iconInput.className = 'player-icon-input';
+        iconInput.style.marginLeft = '4px';
+        ['💰','🃏','🎲','🦄','🐲','👑','🦈','🧊','🍀','🎩'].forEach(icon=>{
+            const opt = document.createElement('option');
+            opt.value = icon;
+            opt.textContent = icon;
+            iconInput.appendChild(opt);
+        });
         wrapper.appendChild(input);
         wrapper.appendChild(document.createTextNode(' 籌碼: '));
         wrapper.appendChild(chipInput);
+        wrapper.appendChild(colorInput);
+        wrapper.appendChild(iconInput);
         playerNamesDiv.appendChild(wrapper);
     }
     const confirmBtn = document.createElement('button');
@@ -166,13 +189,17 @@ setupBtn.onclick = () => {
         minBet = parseInt(minBetInput.value) || 1;
         const nameInputs = playerNamesDiv.querySelectorAll('.player-name-input');
         const chipInputs = playerNamesDiv.querySelectorAll('.player-chip-input');
+        const colorInputs = playerNamesDiv.querySelectorAll('.player-color-input');
+        const iconInputs = playerNamesDiv.querySelectorAll('.player-icon-input');
         nameInputs.forEach((input, idx) => {
             let chipValue = parseInt(chipInputs[idx].value);
             if (isNaN(chipValue) || chipValue < 1) chipValue = 1000;
             players.push({
                 name: input.value.trim() || `玩家${idx+1}`,
                 chips: chipValue,
-                lastBet: 0
+                lastBet: 0,
+                color: colorInputs[idx].value,
+                icon: iconInputs[idx].value
             });
         });
         smallBlindIdx = 0;
@@ -243,13 +270,87 @@ function renderPlayers(winnerIdx = null) {
         let blindTag = '';
         if (idx === smallBlindIdx) blindTag = ` <span style="color:#00e6e6;">(${t.smallBlind.replace(':','')})</span>`;
         if (idx === bigBlindIdx) blindTag = ` <span style="color:#ffd700;">(${t.bigBlind.replace(':','')})</span>`;
-        div.innerHTML = `<span class="chip">💰</span>${p.name}${blindTag}<br>${t.chips}：${p.chips}`;
+        // 淘汰標記
+        let eliminated = p.chips === 0 ? ' <span style="color:#f55;">[淘汰]</span>' : '';
+        div.innerHTML = `<span class="chip" style="color:${p.color||'#fff'};">${p.icon||'💰'}</span>${p.name}${blindTag}${eliminated}<br>${t.chips}：${p.chips}`;
+        // 排序按鈕
+        const upBtn = document.createElement('button');
+        upBtn.textContent = '↑';
+        upBtn.style.margin = '2px 2px 2px 0';
+        upBtn.onclick = () => {
+            if (idx > 0) {
+                [players[idx-1], players[idx]] = [players[idx], players[idx-1]];
+                // 更新盲注位置
+                if (smallBlindIdx === idx) smallBlindIdx--;
+                else if (smallBlindIdx === idx-1) smallBlindIdx++;
+                if (bigBlindIdx === idx) bigBlindIdx--;
+                else if (bigBlindIdx === idx-1) bigBlindIdx++;
+                renderPlayers();
+                renderBetting();
+                renderBlindSelect();
+                renderReliefSelect();
+            }
+        };
+        const downBtn = document.createElement('button');
+        downBtn.textContent = '↓';
+        downBtn.style.margin = '2px 0 2px 2px';
+        downBtn.onclick = () => {
+            if (idx < players.length-1) {
+                [players[idx+1], players[idx]] = [players[idx], players[idx+1]];
+                if (smallBlindIdx === idx) smallBlindIdx++;
+                else if (smallBlindIdx === idx+1) smallBlindIdx--;
+                if (bigBlindIdx === idx) bigBlindIdx++;
+                else if (bigBlindIdx === idx+1) bigBlindIdx--;
+                renderPlayers();
+                renderBetting();
+                renderBlindSelect();
+                renderReliefSelect();
+            }
+        };
+        div.appendChild(upBtn);
+        div.appendChild(downBtn);
         playersArea.appendChild(div);
     });
 }
 
 function handleBet() {
     let totalBet = 0;
+    // 計算本輪最大下注
+    let maxBet = 0;
+    players.forEach((p, idx) => {
+        const betInput = document.getElementById(`bet-${idx}`);
+        let bet = parseInt(betInput.value) || 0;
+        if (bet > maxBet) maxBet = bet;
+    });
+    // 檢查所有有下注的玩家是否都跟到最大注
+    let allCall = true;
+    players.forEach((p, idx) => {
+        const betInput = document.getElementById(`bet-${idx}`);
+        let bet = parseInt(betInput.value) || 0;
+        // 只要有下注且不是all-in，必須等於maxBet
+        if (p.chips > 0 && bet > 0 && bet !== Math.min(maxBet, p.chips)) {
+            allCall = false;
+        }
+    });
+    if (!allCall) {
+        alert('所有有下注的玩家必須跟到最大注（call）才能下注！');
+        return;
+    }
+
+    // 嘲諷判斷
+    players.forEach((p, idx) => {
+        const betInput = document.getElementById(`bet-${idx}`);
+        let bet = parseInt(betInput.value) || 0;
+        // 只針對下注且不是all-in的玩家
+        if (bet > 0 && bet < p.chips + bet) {
+            const original = p.chips + bet;
+            if (bet > original * 0.7) {
+                showTaunt(p.name, bet);
+            }
+        }
+    });
+
+    // 執行下注
     players.forEach((p, idx) => {
         const betInput = document.getElementById(`bet-${idx}`);
         let bet = parseInt(betInput.value) || 0;
@@ -268,6 +369,25 @@ function handleBet() {
     potSpan.textContent = pot;
     renderPlayers();
     renderBetting();
+}
+
+// 嘲諷圖顯示函式
+function showTaunt(playerName, lostAmount) {
+    // 若已存在則先移除
+    let old = document.getElementById('taunt-img');
+    if (old) old.remove();
+    let taunt = document.createElement('div');
+    taunt.id = 'taunt-img';
+    taunt.innerHTML = `
+        <img src="嘲諷.png" alt="taunt">
+        <div class="taunt-text">
+            ${playerName}竟然輸了${lostAmount}元，好弱喔
+        </div>
+    `;
+    document.body.appendChild(taunt);
+    setTimeout(() => {
+        taunt.remove();
+    }, 2500);
 }
 
 function renderBetting() {
@@ -303,6 +423,7 @@ function renderBetting() {
 
 function renderWinnerSelect() {
     winnerSelect.innerHTML = '';
+    winnerSelect.multiple = true;
     players.forEach((p, idx) => {
         const opt = document.createElement('option');
         opt.value = idx;
@@ -327,29 +448,34 @@ if (reliefBtn) {
         let amt = parseInt(reliefAmountInput.value) || 0;
         if (isNaN(idx) || idx < 0 || idx >= players.length || amt <= 0) return;
         players[idx].chips += amt;
+        // 若原本淘汰則移除淘汰標記（renderPlayers 會自動處理）
         renderPlayers();
         renderBetting();
     };
 }
 
 distributeBtn.onclick = () => {
-    const winnerIdx = parseInt(winnerSelect.value);
-    if (isNaN(winnerIdx)) return;
-    players[winnerIdx].chips += pot;
-    addHistory(winnerIdx);
+    const selected = Array.from(winnerSelect.selectedOptions).map(opt => parseInt(opt.value));
+    if (selected.length === 0) return;
+    const share = Math.floor(pot / selected.length);
+    selected.forEach(idx => {
+        players[idx].chips += share;
+    });
+    addHistory(selected);
     pot = 0;
     potSpan.textContent = pot;
-    renderPlayers(winnerIdx);
+    renderPlayers(selected.length === 1 ? selected[0] : null);
     renderBetting();
 };
 
-function addHistory(winnerIdx) {
+function addHistory(winnerIdxArr) {
     const t = i18n[currentLang];
     const li = document.createElement('li');
     const roundInfo = players.map((p, idx) =>
-        `${p.name}(${p.chips}${winnerIdx===idx?'🏆':''})`
+        `${p.name}(${p.chips}${winnerIdxArr.includes(idx)?'🏆':''})`
     ).join('，');
-    li.textContent = t.roundResult(players[winnerIdx].name, roundInfo);
+    let winnerNames = winnerIdxArr.map(idx => players[idx].name).join(', ');
+    li.textContent = t.roundResult(winnerNames, roundInfo);
     historyList.insertBefore(li, historyList.firstChild);
 }
 
@@ -380,5 +506,216 @@ if (langSelect) {
     langSelect.onchange = () => {
         currentLang = langSelect.value;
         updateLangUI();
+    };
+}
+
+if (themeSelect) {
+    themeSelect.onchange = () => {
+        document.body.classList.remove('theme-dark', 'theme-light', 'theme-casino', 'theme-tech', 'theme-rainbow');
+        switch (themeSelect.value) {
+            case 'dark':
+                document.body.classList.add('theme-dark');
+                break;
+            case 'light':
+                document.body.classList.add('theme-light');
+                break;
+            case 'casino':
+                document.body.classList.add('theme-casino');
+                break;
+            case 'tech':
+                document.body.classList.add('theme-tech');
+                break;
+            case 'rainbow':
+                document.body.classList.add('theme-rainbow');
+                break;
+            default:
+                // 預設主題
+                break;
+        }
+    };
+}
+
+function autoMobileTemplate() {
+    if (window.innerWidth <= 600) {
+        document.body.classList.add('mobile-template');
+    } else {
+        document.body.classList.remove('mobile-template');
+    }
+}
+window.addEventListener('resize', autoMobileTemplate);
+window.addEventListener('DOMContentLoaded', autoMobileTemplate);
+
+// 在 game-section 下方加一一个按鈕（HTML 需配合）
+const addPlayerBtn = document.createElement('button');
+addPlayerBtn.textContent = '新增玩家';
+addPlayerBtn.onclick = () => {
+    const name = prompt('輸入新玩家名稱');
+    if (!name) return;
+    players.push({
+        name,
+        chips: 1000,
+        lastBet: 0,
+        color: '#fff',
+        icon: '💰'
+    });
+    renderPlayers();
+    renderBetting();
+    renderWinnerSelect();
+    renderBlindSelect();
+    renderReliefSelect();
+};
+gameSection.appendChild(addPlayerBtn);
+
+const glossaryBtn = document.createElement('button');
+glossaryBtn.textContent = '德州撲克術語解釋';
+glossaryBtn.onclick = () => {
+    alert(`常見術語：
+All-in：全下，將所有籌碼押上。
+Call：跟注，補到與最大下注額相同。
+Raise：加注，提高下注額。
+Fold：棄牌，放棄本局。
+Blind：盲注，強制下注。
+Pot：底池，所有下注總和。
+...`);
+};
+gameSection.appendChild(glossaryBtn);
+
+// 匯出CSV
+if (exportCsvBtn) {
+    exportCsvBtn.onclick = () => {
+        let csv = '局數,勝者,分配紀錄\n';
+        const items = Array.from(historyList.querySelectorAll('li'));
+        items.reverse().forEach((li, idx) => {
+            // 嘗試從 li.textContent 解析勝者與分配紀錄
+            let txt = li.textContent;
+            let winner = '';
+            let status = '';
+            const m = txt.match(/勝者：(.+?)，分配底池，現況：(.+)/) || txt.match(/Winner: (.+?), Pot distributed, Status: (.+)/);
+            if (m) {
+                winner = m[1];
+                status = m[2];
+            } else {
+                status = txt;
+            }
+            csv += `${idx+1},"${winner}","${status}"\n`;
+        });
+        const blob = new Blob([csv], {type: 'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'poker_history.csv';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 100);
+    };
+}
+
+// 匯出Excel（xlsx）功能
+if (exportCsvBtn) {
+    // 新增一個 Excel 匯出按鈕
+    let exportExcelBtn = document.getElementById('export-excel-btn');
+    if (!exportExcelBtn) {
+        exportExcelBtn = document.createElement('button');
+        exportExcelBtn.id = 'export-excel-btn';
+        exportExcelBtn.textContent = '匯出Excel';
+        exportCsvBtn.parentNode.insertBefore(exportExcelBtn, exportCsvBtn.nextSibling);
+    }
+    exportExcelBtn.onclick = () => {
+        // 需要 SheetJS (xlsx) 套件，若未引入可用 CDN
+        if (typeof XLSX === 'undefined') {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+            script.onload = exportExcelBtn.onclick;
+            document.body.appendChild(script);
+            return;
+        }
+        // 產生資料
+        let rows = [['局數', '勝者', '分配紀錄']];
+        const items = Array.from(historyList.querySelectorAll('li'));
+        items.reverse().forEach((li, idx) => {
+            let txt = li.textContent;
+            let winner = '';
+            let status = '';
+            const m = txt.match(/勝者：(.+?)，分配底池，現況：(.+)/) || txt.match(/Winner: (.+?), Pot distributed, Status: (.+)/);
+            if (m) {
+                winner = m[1];
+                status = m[2];
+            } else {
+                status = txt;
+            }
+            rows.push([idx + 1, winner, status]);
+        });
+        // 轉為 worksheet
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, '歷史紀錄');
+        // 下載
+        XLSX.writeFile(wb, 'poker_history.xlsx');
+    };
+}
+
+// 匯出JSON
+if (exportJsonBtn) {
+    exportJsonBtn.onclick = () => {
+        // 匯出玩家、歷史紀錄、底池等狀態
+        const data = {
+            players,
+            pot,
+            minBet,
+            smallBlindIdx,
+            bigBlindIdx,
+            history: Array.from(historyList.querySelectorAll('li')).map(li => li.textContent)
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'poker_history.json';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 100);
+    };
+}
+
+// 匯入JSON
+if (importJsonBtn && importJsonInput) {
+    importJsonBtn.onclick = () => importJsonInput.click();
+    importJsonInput.onchange = (e) => {
+        const file = importJsonInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            try {
+                const data = JSON.parse(evt.target.result);
+                if (!Array.isArray(data.players) || !Array.isArray(data.history)) {
+                    alert('格式錯誤');
+                    return;
+                }
+                // 還原玩家
+                players = data.players;
+                pot = data.pot || 0;
+                minBet = data.minBet || 10;
+                smallBlindIdx = data.smallBlindIdx || 0;
+                bigBlindIdx = data.bigBlindIdx || 1;
+                // 還原歷史紀錄
+                historyList.innerHTML = '';
+                data.history.forEach(txt => {
+                    const li = document.createElement('li');
+                    li.textContent = txt;
+                    historyList.appendChild(li);
+                });
+                potSpan.textContent = pot;
+                minBetInput.value = minBet;
+                renderPlayers();
+                renderBetting();
+                renderWinnerSelect();
+                renderBlindSelect();
+                renderReliefSelect();
+                alert('匯入完成');
+            } catch(e) {
+                alert('匯入失敗：' + e);
+            }
+        };
+        reader.readAsText(file);
     };
 }

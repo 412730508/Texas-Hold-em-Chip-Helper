@@ -10,7 +10,7 @@
     <div class="container">
         <h1>德州撲克籌碼輔助工具</h1>
         <p style="text-align:center;color:#ffd700;font-size:1.1em;margin-bottom:16px;">
-            賭博需謹慎，小賭怡情，大賭郭台銘!
+            賭博需謹慎，小賭怡情，大賭郭台銘
         </p>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
             <div></div>
@@ -19,6 +19,14 @@
                 <select id="lang-select" style="padding:4px 10px;font-size:0.95em;">
                     <option value="zh-tw">繁體中文</option>
                     <option value="en">English</option>
+                </select>
+                <select id="theme-select" style="padding:4px 10px;font-size:0.95em;margin-left:8px;">
+                    <option value="default">主題</option>
+                    <option value="dark">深色</option>
+                    <option value="light">亮色</option>
+                    <option value="casino">賭場紅</option>
+                    <option value="tech">科技藍</option>
+                    <option value="rainbow">周奕宏臭甲色</option>
                 </select>
                 <button id="toggle-mobile-btn" style="padding:4px 14px;font-size:0.95em;">切換手機模板</button>
             </div>
@@ -38,6 +46,9 @@
             <div id="players-area"></div>
             <div id="pot-area">底池：<span id="pot">0</span></div>
             <div id="betting-area"></div>
+            <p id="call-tip" style="color:#ffb3ec;text-align:center;font-size:1em;margin:8px 0 0 0;">
+                當你選擇 <b>跟注（call）</b> 的時候，你必須跟上目前最高的下注額，也就是說，你要投入的籌碼數量必須和最大的一方一樣多。不能少，不然就不算跟注。
+            </p>
             <div id="winner-area">
                 <label>勝者：</label>
                 <select id="winner-select"></select>
@@ -50,6 +61,13 @@
             <div id="history-area">
                 <h3>籌碼歷史紀錄</h3>
                 <ul id="history-list"></ul>
+                <div style="margin-top:10px;text-align:right;">
+                    <button id="export-csv-btn">匯出CSV</button>
+                    <button id="export-excel-btn">匯出Excel</button>
+                    <button id="export-json-btn">匯出JSON</button>
+                    <input type="file" id="import-json-input" accept=".json" style="display:none;">
+                    <button id="import-json-btn">匯入紀錄</button>
+                </div>
             </div>
             <div id="relief-area" style="margin-top:18px; text-align:center;">
                 <label>救濟金發放給
