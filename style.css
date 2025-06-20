@@ -450,32 +450,185 @@ body.theme-rainbow #call-tip {
     animation: rainbow-text 2s linear infinite;
 }
 
-/* 彩虹動畫 */
-@keyframes rainbow-bg {
-    0% { background: #181818; }
-    20% { background: #1a0033; }
-    40% { background: #003366; }
-    60% { background: #004d26; }
-    80% { background: #660033; }
-    100% { background: #181818; }
+/* 迷幻色彩主題（嘗試中） */
+body.theme-psychedelic {
+    background: #1a0020; /* 迷幻深色備用底色 */
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
 }
-@keyframes rainbow-text {
-    0% { color: #ff00cc; text-shadow: 0 0 12px #ff00cc; }
-    20% { color: #00ffe7; text-shadow: 0 0 12px #00ffe7; }
-    40% { color: #aaff00; text-shadow: 0 0 12px #aaff00; }
-    60% { color: #ffd700; text-shadow: 0 0 12px #ffd700; }
-    80% { color: #e63946; text-shadow: 0 0 12px #e63946; }
-    100% { color: #ff00cc; text-shadow: 0 0 12px #ff00cc; }
+body.theme-psychedelic::before {
+    /* 移除背景霧化層 */
+    display: none !important;
+    content: none !important;
 }
-@keyframes rainbow-border {
-    0% { border-color: #ff00cc; }
-    20% { border-color: #00ffe7; }
-    40% { border-color: #aaff00; }
-    60% { border-color: #ffd700; }
-    80% { border-color: #e63946; }
-    100% { border-color: #ff00cc; }
+body.theme-psychedelic .container {
+    background: rgba(20, 10, 40, 0.7);
+    color: #fff;
+    border-radius: 24px;
+    box-shadow: 0 8px 48px #000b, 0 0 80px #7f00ff55;
+    border: 2px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 1;
 }
-@keyframes rainbow-btn {
+body.theme-psychedelic h1 {
+    font-family: 'Orbitron', 'Playfair Display', 'Arial Black', cursive, sans-serif;
+    font-weight: bold;
+    font-size: 2.7em;
+    letter-spacing: 6px;
+    color: #fff;
+    background: linear-gradient(90deg, #ff005e 0%, #7f00ff 50%, #00c3ff 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+    text-shadow:
+        0 0 16px #ff005e,
+        0 0 32px #7f00ff,
+        0 0 48px #00c3ff;
+    animation: psychedelic-title-float 3s ease-in-out infinite alternate, psychedelic-gradient-move 8s linear infinite;
+    filter: blur(0.5px);
+}
+@keyframes psychedelic-title-float {
+    0% { transform: translateY(0) scale(1); filter: blur(0.5px);}
+    50% { transform: translateY(-6px) scale(1.03); filter: blur(1.2px);}
+    100% { transform: translateY(0) scale(1); filter: blur(0.5px);}
+}
+@keyframes psychedelic-gradient-move {
     0% { background-position: 0% 50%; }
     100% { background-position: 100% 50%; }
+}
+body.theme-psychedelic button {
+    background: linear-gradient(120deg, #ff005e 0%, #7f00ff 60%, #00c3ff 100%);
+    color: #fff;
+    border: none;
+    border-radius: 40px;
+    padding: 10px 28px;
+    font-size: 1.08em;
+    margin: 8px 10px 8px 0;
+    box-shadow: 0 2px 16px #7f00ff88, 0 0 8px #00c3ff88;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s, filter 0.2s;
+    font-weight: bold;
+    filter: blur(0.2px);
+}
+body.theme-psychedelic button:hover {
+    background: linear-gradient(120deg, #fff 0%, #ff005e 40%, #7f00ff 100%);
+    color: #7f00ff;
+    box-shadow: 0 0 32px #ff005e88, 0 0 24px #00c3ff88;
+    filter: blur(0.5px) brightness(1.1);
+}
+body.theme-psychedelic #pot-area {
+    background: linear-gradient(90deg, #7f00ff 0%, #00c3ff 100%);
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 0 24px #7f00ff88;
+    border: 2px solid #fff2;
+    filter: blur(0.5px);
+}
+body.theme-psychedelic .player-block {
+    background: rgba(40, 10, 60, 0.85);
+    border-radius: 18px;
+    box-shadow: 0 0 24px #ff005e55, 0 0 32px #00c3ff44;
+    border: 1.5px solid #fff3;
+    color: #fff;
+    filter: blur(0.5px);
+    animation: psychedelic-float 4s ease-in-out infinite alternate;
+}
+@keyframes psychedelic-float {
+    0% { transform: translateY(0) scale(1);}
+    50% { transform: translateY(-8px) scale(1.02);}
+    100% { transform: translateY(0) scale(1);}
+}
+body.theme-psychedelic .chip {
+    text-shadow: 0 0 8px #ff005e, 0 0 12px #00c3ff;
+    animation: psychedelic-chip-float 2.5s ease-in-out infinite alternate;
+}
+@keyframes psychedelic-chip-float {
+    0% { filter: blur(0.2px);}
+    50% { filter: blur(1.2px);}
+    100% { filter: blur(0.2px);}
+}
+body.theme-psychedelic #history-area {
+    background: rgba(20, 10, 40, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 16px #7f00ff55;
+    border: 1.5px solid #fff2;
+    color: #fff;
+    filter: blur(0.5px);
+}
+body.theme-psychedelic #relief-area {
+    background: rgba(40, 10, 60, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 16px #ff005e55;
+    border: 1.5px solid #fff2;
+    color: #fff;
+    filter: blur(0.5px);
+}
+body.theme-psychedelic #call-tip {
+    color: #fff;
+    text-shadow: 0 0 8px #ff005e, 0 0 12px #00c3ff;
+    filter: blur(0.5px);
+    animation: psychedelic-title-float 3s ease-in-out infinite alternate;
+}
+body.theme-psychedelic label,
+body.theme-psychedelic input,
+body.theme-psychedelic select {
+    color: #fff !important;
+    background: rgba(30, 10, 40, 0.5) !important;
+    border: 1px solid #fff2 !important;
+    filter: blur(0.2px);
+}
+body.theme-psychedelic input:focus, body.theme-psychedelic select:focus {
+    outline: 2px solid #ff005e;
+    background: rgba(127,0,255,0.15) !important;
+}
+body.theme-psychedelic ::selection {
+    background: #ff005e88;
+    color: #fff;
+}
+body.theme-psychedelic .player-block .winner {
+    border: 2.5px solid #ffd700;
+    box-shadow: 0 0 24px #ffd700, 0 0 32px #fff;
+    animation: winner-flash 1.2s linear 2;
+    filter: blur(0.2px);
+}
+body.theme-psychedelic .psychedelic-bg-img {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0; /* 比遊戲畫面低 */
+    pointer-events: none;
+    opacity: 0.82;
+    filter: blur(0.5px) brightness(1.1) saturate(1.2);
+    transition: opacity 0.5s;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    overflow: hidden;
+    background: linear-gradient(90deg, #1a0020 0%, #3a0a40 50%, #1a0020 100%);
+}
+body.theme-psychedelic .psychedelic-bg-img img {
+    display: block;
+    height: 100vh;
+    width: auto;
+    max-width: 50vw;
+    object-fit: contain; /* 保持原比例，上下貼齊 */
+    object-position: center top;
+    background: transparent;
+}
+@media (max-width: 900px) {
+    body.theme-psychedelic .psychedelic-bg-img img {
+        max-width: 50vw;
+    }
+}
+@media (max-width: 600px) {
+    body.theme-psychedelic .psychedelic-bg-img {
+        display: none;
+    }
 }

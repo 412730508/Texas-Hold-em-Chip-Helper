@@ -511,7 +511,19 @@ if (langSelect) {
 
 if (themeSelect) {
     themeSelect.onchange = () => {
-        document.body.classList.remove('theme-dark', 'theme-light', 'theme-casino', 'theme-tech', 'theme-rainbow');
+        document.body.classList.remove(
+            'theme-dark',
+            'theme-light',
+            'theme-casino',
+            'theme-tech',
+            'theme-rainbow',
+            'theme-psychedelic'
+        );
+        // 移除臭甲圖（如果有）
+        const oldAvatar = document.getElementById('fixed-avatar');
+        if (oldAvatar) oldAvatar.remove();
+        // 移除迷幻主題動畫圖層（如果有）
+        document.querySelectorAll('.psychedelic-bg-img').forEach(el => el.remove());
         switch (themeSelect.value) {
             case 'dark':
                 document.body.classList.add('theme-dark');
@@ -527,6 +539,35 @@ if (themeSelect) {
                 break;
             case 'rainbow':
                 document.body.classList.add('theme-rainbow');
+                // 動態插入臭甲圖
+                if (!document.getElementById('fixed-avatar')) {
+                    const img = document.createElement('img');
+                    img.id = 'fixed-avatar';
+                    img.src = '螢幕擷取畫面 2025-06-14 221546.png';
+                    img.alt = '頭像';
+                    img.style.position = 'fixed';
+                    img.style.top = '50%';
+                    img.style.right = '0';
+                    img.style.transform = 'translateY(-50%)';
+                    img.style.margin = '16px 8px';
+                    img.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                    img.style.zIndex = '9999';
+                    img.style.pointerEvents = 'none';
+                    document.body.appendChild(img);
+                }
+                break;
+            case 'psychedelic':
+                document.body.classList.add('theme-psychedelic');
+                // 插入一個父層，裡面兩張圖，左與右
+                if (!document.querySelector('.psychedelic-bg-img')) {
+                    const bgDiv = document.createElement('div');
+                    bgDiv.className = 'psychedelic-bg-img';
+                    bgDiv.innerHTML = `
+                        <img src="961d59ebcde4b60f9686b7a07615356d.gif" alt="left" />
+                        <img src="smoke-flower.gif" alt="right" />
+                    `;
+                    document.body.appendChild(bgDiv);
+                }
                 break;
             default:
                 // 預設主題
