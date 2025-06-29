@@ -369,6 +369,7 @@ function handleBet() {
     potSpan.textContent = pot;
     renderPlayers();
     renderBetting();
+    playChipSound(); // 播放籌碼音效
 }
 
 // 嘲諷圖顯示函式
@@ -466,6 +467,7 @@ distributeBtn.onclick = () => {
     potSpan.textContent = pot;
     renderPlayers(selected.length === 1 ? selected[0] : null);
     renderBetting();
+    playChipSound(); // 播放籌碼音效
 };
 
 function addHistory(winnerIdxArr) {
@@ -621,6 +623,145 @@ Pot：底池，所有下注總和。
 };
 gameSection.appendChild(glossaryBtn);
 
+// === 新增全體加碼、全體All-in、全體Call按鈕（多選列表版） ===
+function showAddToAllDialog(amount, mode = 'add') {
+    // mode: 'add' = 加指定金額, 'call' = call到最大, 'allin' = all-in
+    const dialog = document.createElement('div');
+    dialog.style.position = 'fixed';
+    dialog.style.top = '50%';
+    dialog.style.left = '50%';
+    dialog.style.transform = 'translate(-50%, -50%)';
+    dialog.style.background = '#222';
+    dialog.style.color = '#fff';
+    dialog.style.padding = '24px 32px';
+    dialog.style.borderRadius = '16px';
+    dialog.style.boxShadow = '0 4px 32px #000a';
+    dialog.style.zIndex = '99999';
+    dialog.style.textAlign = 'center';
+
+    let labelText = '選擇<b>不加</b>的玩家：';
+    if (mode === 'call') labelText = '選擇<b>不Call</b>的玩家：';
+    if (mode === 'allin') labelText = '選擇<b>不All-in</b>的玩家：';
+    dialog.innerHTML = `<div style="margin-bottom:12px;">${labelText}</div>`;
+
+    const form = document.createElement('form');
+    players.forEach((p, idx) => {
+        const label = document.createElement('label');
+        label.style.marginRight = '18px';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.value = idx;
+        cb.checked = false; // 預設都加
+        label.appendChild(cb);
+        label.appendChild(document.createTextNode(' ' + p.name));
+        form.appendChild(label);
+    });
+    dialog.appendChild(form);
+
+    const okBtn = document.createElement('button');
+    if (mode === 'add') {
+        okBtn.textContent = `確定全體+${amount}`;
+    } else if (mode === 'call') {
+        okBtn.textContent = `確定全體Call`;
+    } else if (mode === 'allin') {
+        okBtn.textContent = `確定全體All-in`;
+    }
+    okBtn.style.margin = '18px 12px 0 0';
+    okBtn.onclick = (e) => {
+        e.preventDefault();
+        const excludeIdx = Array.from(form.querySelectorAll('input[type=checkbox]:checked')).map(cb => parseInt(cb.value));
+        if (mode === 'add') {
+            players.forEach((p, idx) => {
+                if (!excludeIdx.includes(idx)) {
+                    const betInput = document.getElementById(`bet-${idx}`);
+                    if (betInput) {
+                        let val = parseInt(betInput.value) || 0;
+                        betInput.value = Math.min(val + amount, p.chips);
+                    }
+                }
+            });
+        } else if (mode === 'call') {
+            // 先找最大下注
+            let maxBet = 0;
+            players.forEach((p, idx) => {
+                const betInput = document.getElementById(`bet-${idx}`);
+                let val = parseInt(betInput?.value) || 0;
+                if (val > maxBet) maxBet = val;
+            });
+            players.forEach((p, idx) => {
+                if (!excludeIdx.includes(idx)) {
+                    const betInput = document.getElementById(`bet-${idx}`);
+                    if (betInput && p.chips > 0) {
+                        betInput.value = Math.min(maxBet, p.chips);
+                    }
+                }
+            });
+        } else if (mode === 'allin') {
+            players.forEach((p, idx) => {
+                if (!excludeIdx.includes(idx)) {
+                    const betInput = document.getElementById(`bet-${idx}`);
+                    if (betInput && p.chips > 0) {
+                        betInput.value = p.chips;
+                    }
+                }
+            });
+        }
+        dialog.remove();
+    };
+    const cancelBtn = document.createElement('button');
+    cancelBtn.textContent = '取消';
+    cancelBtn.onclick = (e) => {
+        e.preventDefault();
+        dialog.remove();
+    };
+    dialog.appendChild(okBtn);
+    dialog.appendChild(cancelBtn);
+
+    document.body.appendChild(dialog);
+}
+
+// 全體All-in（下注欄全填入最大可下注）
+function allPlayersAllIn() {
+    players.forEach((p, idx) => {
+        const betInput = document.getElementById(`bet-${idx}`);
+        if (betInput && p.chips > 0) {
+            betInput.value = p.chips;
+        }
+    });
+}
+
+const add10Btn = document.createElement('button');
+add10Btn.textContent = '全體下注+10(可排除)';
+add10Btn.onclick = () => showAddToAllDialog(10, 'add');
+
+const add100Btn = document.createElement('button');
+add100Btn.textContent = '全體下注+100(可排除)';
+add100Btn.onclick = () => showAddToAllDialog(100, 'add');
+
+const allInBtn = document.createElement('button');
+allInBtn.textContent = '全體下注All-in';
+allInBtn.onclick = () => showAddToAllDialog(0, 'allin');
+
+const allCallBtn = document.createElement('button');
+allCallBtn.textContent = '全體Call(可排除)';
+allCallBtn.onclick = () => showAddToAllDialog(0, 'call');
+
+// 將這些按鈕插入到 #game-section 的最上方
+if (gameSection) {
+    // 建立一個容器
+    const quickBtnBar = document.createElement('div');
+    quickBtnBar.style.marginBottom = '12px';
+    quickBtnBar.style.display = 'flex';
+    quickBtnBar.style.flexWrap = 'wrap';
+    quickBtnBar.style.gap = '8px';
+    quickBtnBar.appendChild(add10Btn);
+    quickBtnBar.appendChild(add100Btn);
+    quickBtnBar.appendChild(allInBtn);
+    quickBtnBar.appendChild(allCallBtn);
+    // 插入到 gameSection 最前面
+    gameSection.insertBefore(quickBtnBar, gameSection.firstChild);
+}
+
 // 匯出CSV
 if (exportCsvBtn) {
     exportCsvBtn.onclick = () => {
@@ -760,3 +901,141 @@ if (importJsonBtn && importJsonInput) {
         reader.readAsText(file);
     };
 }
+
+// 快捷鍵功能相關
+let currentPlayerIdx = 0;
+const themeList = ['default', 'dark', 'light', 'casino', 'tech', 'rainbow', 'psychedelic'];
+function getNextTheme(current) {
+    const idx = themeList.indexOf(current);
+    return themeList[(idx + 1) % themeList.length];
+}
+function focusBetInput(idx) {
+    setTimeout(() => {
+        const input = document.getElementById(`bet-${idx}`);
+        if (input) input.focus();
+    }, 0);
+}
+function getMaxBet() {
+    let maxBet = 0;
+    players.forEach((p, idx) => {
+        const betInput = document.getElementById(`bet-${idx}`);
+        let bet = parseInt(betInput?.value) || 0;
+        if (bet > maxBet) maxBet = bet;
+    });
+    return maxBet;
+}
+function fillAllBetToCall() {
+    const maxBet = getMaxBet();
+    players.forEach((p, idx) => {
+        const input = document.getElementById(`bet-${idx}`);
+        if (input && p.chips > 0) {
+            input.value = Math.min(maxBet, p.chips);
+        }
+    });
+}
+function fillAllBetToAllin() {
+    players.forEach((p, idx) => {
+        const input = document.getElementById(`bet-${idx}`);
+        if (input && p.chips > 0) {
+            input.value = p.chips;
+        }
+    });
+}
+function adjustCurrentBet(delta) {
+    const input = document.getElementById(`bet-${currentPlayerIdx}`);
+    if (input && players[currentPlayerIdx]) {
+        let val = parseInt(input.value) || 0;
+        val = Math.max(0, Math.min(players[currentPlayerIdx].chips, val + delta));
+        input.value = val;
+    }
+}
+function toggleHistoryArea() {
+    const area = document.getElementById('history-area');
+    if (area) {
+        area.style.display = (area.style.display === 'none') ? '' : 'none';
+    }
+}
+function giveReliefToCurrentPlayer() {
+    if (!players[currentPlayerIdx]) return;
+    let amt = parseInt(reliefAmountInput.value) || 100;
+    players[currentPlayerIdx].chips += amt;
+    renderPlayers();
+    renderBetting();
+}
+function giveReliefToCurrentPlayerInitial() {
+    if (!players[currentPlayerIdx]) return;
+    // 取 setup 時的初始金額（預設1000）
+    let amt = 1000;
+    players[currentPlayerIdx].chips += amt;
+    renderPlayers();
+    renderBetting();
+}
+
+// 快捷鍵監聽
+document.addEventListener('keydown', (e) => {
+    // 輸入框/選單聚焦時不攔截
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    switch (e.key.toUpperCase()) {
+        case 'N': // 新局
+            nextRoundBtn?.click();
+            break;
+        case 'R': // 重置全部
+            resetBtn?.click();
+            break;
+        case 'D': // 分配底池
+            distributeBtn?.click();
+            break;
+        case 'S': // 發放救濟金(初始金額)
+            giveReliefToCurrentPlayerInitial();
+            break;
+        case 'T': // 切換主題
+            if (themeSelect) {
+                themeSelect.value = getNextTheme(themeSelect.value);
+                themeSelect.dispatchEvent(new Event('change'));
+            }
+            break;
+        case 'ARROWLEFT':
+            if (players.length > 0) {
+                currentPlayerIdx = (currentPlayerIdx + players.length - 1) % players.length;
+                focusBetInput(currentPlayerIdx);
+            }
+            break;
+        case 'ARROWRIGHT':
+            if (players.length > 0) {
+                currentPlayerIdx = (currentPlayerIdx + 1) % players.length;
+                focusBetInput(currentPlayerIdx);
+            }
+            break;
+        case '/':
+        case '-':
+            adjustCurrentBet(-1);
+            break;
+        case 'C':
+            fillAllBetToCall();
+            break;
+        case 'A':
+            fillAllBetToAllin();
+            break;
+        case 'H':
+            toggleHistoryArea();
+            break;
+        default:
+            break;
+    }
+});
+
+// 引入 Howler.js（建議在 HTML <head> 加上）
+// <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+// 播放籌碼音效
+function playChipSound() {
+    if (typeof Howl === 'undefined') return;
+    const chip = new Howl({
+        src: ['chip.mp3'], // 你下載的籌碼音效檔案
+        volume: 0.5
+    });
+    chip.play();
+}
+
+// 用法：在下注、分配底池等動作時呼叫 playChipSound()
+// 例如 handleBet()、distributeBtn.onclick 內加上 playChipSound();

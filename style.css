@@ -388,11 +388,24 @@ body.theme-rainbow .container {
     border: 2px solid #fff;
     box-shadow: 0 0 24px #fff5, 0 0 80px #ff00cc88;
     animation: rainbow-border 4s linear infinite;
+    position: relative;
+    z-index: 1;
+    box-shadow:
+        0 0 32px 8px #ff00cc,
+        0 0 64px 16px #00ffe7,
+        0 0 96px 24px #ffd700,
+        0 0 0 0 #fff;
+    animation: rainbow-neon-border 4s linear infinite;
+    border: 3px solid transparent;
+    background-clip: padding-box;
 }
 body.theme-rainbow h1 {
-    animation: rainbow-text 2s linear infinite;
-    background: none !important;
-    -webkit-text-fill-color: transparent; /* 修正: 讓動畫色彩顯示 */
+    animation: rainbow-text 2s linear infinite, rainbow-gradient-move 6s linear infinite;
+    background: linear-gradient(270deg, #ff00cc, #00ffe7, #aaff00, #ffd700, #e63946, #457b9d, #ff00cc);
+    background-size: 1200% 1200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     text-fill-color: transparent;
     text-shadow:
         0 0 12px #fff,
@@ -400,54 +413,78 @@ body.theme-rainbow h1 {
         0 0 32px #00ffe7,
         0 0 40px #ff4fd8;
 }
+@keyframes rainbow-gradient-move {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+}
 body.theme-rainbow button {
     background: linear-gradient(90deg, #ff00cc, #00ffe7, #aaff00, #ffd700, #e63946, #457b9d, #ff00cc);
-    background-size: 400% 400%;
-    animation: rainbow-btn 3s linear infinite;
+    background-size: 1200% 1200%;
+    animation: rainbow-btn 3s linear infinite, rainbow-gradient-move 6s linear infinite;
     color: #fff;
     border: 2px solid #fff;
     box-shadow: 0 0 12px #ff00cc, 0 0 24px #00ffe7;
 }
-body.theme-rainbow button:hover {
-    background: linear-gradient(90deg, #ffd700, #ff00cc, #00ffe7, #aaff00, #ffd700);
-    background-size: 400% 400%;
-    animation: rainbow-btn 1.5s linear infinite;
-    color: #222;
-    border-color: #ffd700;
-}
-body.theme-rainbow #pot-area {
-    background: #222;
-    color: #fff;
-    border: 2px solid #ff00cc;
-    box-shadow: 0 0 16px #ff00cc;
-    animation: rainbow-border 4s linear infinite;
-}
-body.theme-rainbow .player-block {
-    background: rgba(40,40,40,0.95);
-    border: 2px solid #00ffe7;
-    box-shadow: 0 0 12px #00ffe7, 0 0 24px #ff00cc;
-    animation: rainbow-border 3s linear infinite;
+@keyframes rainbow-btn {
+    0% { filter: brightness(1) }
+    50% { filter: brightness(1.2) }
+    100% { filter: brightness(1) }
 }
 body.theme-rainbow .chip {
-    animation: rainbow-text 2s linear infinite;
+    animation: rainbow-text 2s linear infinite, rainbow-gradient-move 6s linear infinite;
+    background: linear-gradient(270deg, #ff00cc, #00ffe7, #aaff00, #ffd700, #e63946, #457b9d, #ff00cc);
+    background-size: 1200% 1200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
 }
-body.theme-rainbow #history-area {
-    background: #222;
-    border: 2px solid #aaff00;
-    box-shadow: 0 0 12px #aaff00;
-    animation: rainbow-border 4s linear infinite;
+@keyframes rainbow-text {
+    0% { filter: brightness(1) }
+    50% { filter: brightness(1.3) }
+    100% { filter: brightness(1) }
 }
-body.theme-rainbow #relief-area {
-    background: #181818;
-    border-radius: 8px;
-    border: 2px solid #ffd700;
-    box-shadow: 0 0 12px #ffd700;
-    animation: rainbow-border 4s linear infinite;
-}
-body.theme-rainbow #call-tip {
-    color: #fff;
-    text-shadow: 0 0 8px #ff00cc, 0 0 12px #00ffe7;
-    animation: rainbow-text 2s linear infinite;
+@keyframes rainbow-neon-border {
+    0% {
+        box-shadow:
+            0 0 32px 8px #ff00cc,
+            0 0 64px 16px #00ffe7,
+            0 0 96px 24px #ffd700,
+            0 0 0 0 #fff;
+        border-color: #ff00cc;
+    }
+    25% {
+        box-shadow:
+            0 0 32px 8px #00ffe7,
+            0 0 64px 16px #ffd700,
+            0 0 96px 24px #e63946,
+            0 0 0 0 #fff;
+        border-color: #00ffe7;
+    }
+    50% {
+        box-shadow:
+            0 0 32px 8px #ffd700,
+            0 0 64px 16px #e63946,
+            0 0 96px 24px #457b9d,
+            0 0 0 0 #fff;
+        border-color: #ffd700;
+    }
+    75% {
+        box-shadow:
+            0 0 32px 8px #e63946,
+            0 0 64px 16px #457b9d,
+            0 0 96px 24px #ff00cc,
+            0 0 0 0 #fff;
+        border-color: #e63946;
+    }
+    100% {
+        box-shadow:
+            0 0 32px 8px #ff00cc,
+            0 0 64px 16px #00ffe7,
+            0 0 96px 24px #ffd700,
+            0 0 0 0 #fff;
+        border-color: #ff00cc;
+    }
 }
 
 /* 迷幻色彩主題（嘗試中） */
@@ -617,6 +654,21 @@ body.theme-psychedelic .psychedelic-bg-img img {
     display: block;
     height: 100vh;
     width: auto;
+    max-width: 50vw;
+    object-fit: contain; /* 保持原比例，上下貼齊 */
+    object-position: center top;
+    background: transparent;
+}
+@media (max-width: 900px) {
+    body.theme-psychedelic .psychedelic-bg-img img {
+        max-width: 50vw;
+    }
+}
+@media (max-width: 600px) {
+    body.theme-psychedelic .psychedelic-bg-img {
+        display: none;
+    }
+}
     max-width: 50vw;
     object-fit: contain; /* 保持原比例，上下貼齊 */
     object-position: center top;
